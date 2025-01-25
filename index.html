@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AL KHIRAN MALL - Utility Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="bg-blue-600 text-white p-4">
+            <div class="container mx-auto">
+                <h1 class="text-2xl font-bold text-center">AL KHIRAN MALL</h1>
+                <p class="text-center mt-2" id="currentDate"></p>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container mx-auto p-4">
+            <!-- Home Page -->
+            <div id="homePage" class="grid md:grid-cols-2 gap-6 mt-8">
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-300 cursor-pointer" onclick="navigateTo('waterMeter')">
+                    <div class="text-center">
+                        <i class="bi bi-droplet-fill text-5xl text-blue-500"></i>
+                        <h2 class="text-2xl font-semibold mt-4">Water Meter</h2>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition duration-300 cursor-pointer" onclick="navigateTo('energyMeter')">
+                    <div class="text-center">
+                        <i class="bi bi-lightning-fill text-5xl text-yellow-500"></i>
+                        <h2 class="text-2xl font-semibold mt-4">Energy Meter</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Year Selection -->
+            <div id="yearSelection" class="hidden">
+                <button onclick="navigateTo('homePage')" class="mb-4 text-blue-600"><i class="bi bi-arrow-left"></i> Back</button>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Select Year</h2>
+                    <select id="yearSelect" class="w-full p-2 border rounded" onchange="showMonthSelection()">
+                        <option value="">Select Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Month Selection -->
+            <div id="monthSelection" class="hidden">
+                <button onclick="navigateTo('yearSelection')" class="mb-4 text-blue-600"><i class="bi bi-arrow-left"></i> Back</button>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Select Month</h2>
+                    <div class="grid grid-cols-3 md:grid-cols-4 gap-4">
+                        <!-- Months will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Options -->
+            <div id="dataOptions" class="hidden">
+                <button onclick="navigateTo('monthSelection')" class="mb-4 text-blue-600"><i class="bi bi-arrow-left"></i> Back</button>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg" onclick="showReadings()">
+                        <i class="bi bi-table text-3xl text-blue-500"></i>
+                        <h3 class="text-xl font-semibold mt-2">Readings</h3>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg" onclick="showChart()">
+                        <i class="bi bi-pie-chart text-3xl text-green-500"></i>
+                        <h3 class="text-xl font-semibold mt-2">Chart</h3>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg" onclick="showReport()">
+                        <i class="bi bi-file-text text-3xl text-purple-500"></i>
+                        <h3 class="text-xl font-semibold mt-2">Monthly Report</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Readings Table -->
+            <div id="readingsTable" class="hidden">
+                <button onclick="navigateTo('dataOptions')" class="mb-4 text-blue-600"><i class="bi bi-arrow-left"></i> Back</button>
+                <div class="overflow-x-auto bg-white rounded-lg shadow">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2">Date</th>
+                                <th class="px-4 py-2">MEW WM (M³)</th>
+                                <th class="px-4 py-2">Consumption (M³)</th>
+                                <th class="px-4 py-2">Irrigation WM (M³)</th>
+                                <th class="px-4 py-2">Domestic WM (M³)</th>
+                                <th class="px-4 py-2">CT Makeup WM (M³)</th>
+                                <th class="px-4 py-2">TES WM (M³)</th>
+                                <th class="px-4 py-2">CHW WM (M³)</th>
+                                <th class="px-4 py-2">Cond Blowdown WM (M³)</th>
+                                <th class="px-4 py-2">Irrigation Tank Level (MTR) B1</th>
+                                <th class="px-4 py-2">Irrigation Tank Level (MTR) B7</th>
+                            </tr>
+                        </thead>
+                        <tbody id="readingsTableBody">
+                            <!-- Data rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Chart View -->
+            <div id="chartView" class="hidden">
+                <button onclick="navigateTo('dataOptions')" class="mb-4 text-blue-600"><i class="bi bi-arrow-left"></i> Back</button>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <canvas id="consumptionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Monthly Report -->
+            <div id="monthlyReport" class="hidden">
+                <button onclick="navigateTo('dataOptions')" class="mb-4 text-blue-600"><i class="bi bi-arrow-left"></i> Back</button>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Monthly Consumption Report</h2>
+                    <div id="reportContent">
+                        <!-- Report content will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize application state
+        let currentSection = 'homePage';
+        let selectedMeterType = '';
+        let selectedYear = '';
+        let selectedMonth = '';
+        let readings = {};
+
+        // Initialize date display
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+
+        // Initialize year dropdown
+        function initializeYearDropdown() {
+            const yearSelect = document.getElementById('yearSelect');
+            const currentYear = new Date().getFullYear();
+            for (let year = currentYear; year <= 2100; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // Navigation function
+        function navigateTo(section) {
+            document.querySelectorAll('#app > div > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(section).classList.remove('hidden');
+            currentSection = section;
+        }
+
+        // Initialize months
+        function initializeMonths() {
+            const monthsContainer = document.querySelector('#monthSelection .grid');
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            monthsContainer.innerHTML = months.map(month => `
+                <div class="bg-blue-100 rounded p-4 text-center cursor-pointer hover:bg-blue-200"
+                     onclick="selectMonth('${month}')">
+                    ${month}
+                </div>
+            `).join('');
+        }
+
+        // Select meter type
+        function selectMeterType(type) {
+            selectedMeterType = type;
+            navigateTo('yearSelection');
+        }
+
+        // Show month selection
+        function showMonthSelection() {
+            selectedYear = document.getElementById('yearSelect').value;
+            if (selectedYear) {
+                navigateTo('monthSelection');
+            }
+        }
+
+        // Select month
+        function selectMonth(month) {
+            selectedMonth = month;
+            navigateTo('dataOptions');
+        }
+
+        // Initialize readings table
+        function initializeReadingsTable() {
+            const tbody = document.getElementById('readingsTableBody');
+            const daysInMonth = new Date(selectedYear, new Date().getMonth() + 1, 0).getDate();
+            
+            tbody.innerHTML = Array.from({length: daysInMonth}, (_, i) => {
+                const day = i + 1;
+                return `
+                    <tr>
+                        <td class="px-4 py-2">${day}/${selectedMonth}/
+                        ${selectedYear}</td>
+                        <td class="px-4 py-2"><input type="number" class="border p-1 w-full" onchange="updateConsumption(${day})"></td>
+                        <td class="px-4 py-2" id="consumption-${day}">-</td>
+                        <td class="px-4 py-2"><input type="number" class="border p-1 w-full"></td>
+                        <td class="px-4 py-2"><input type="number" class="border p-1 w-full"></td>
+                        <td class="px-4 py-2"><input type="number" class="border p-1 w-full"></td>
+                        <td class="px-4 py-2"><input type="number" class="border p-1 w-full"></td>
+                        <td class="px-4 py-2"><input type="number" class="border p-1 w-full"></td>
+                        <td class="px-4 py-2"><input type="number" class="border p-1 w-full"></td>
+                        <td class="px-4 py-2"><input type="number" class="border p-1 w-full"></td>
+                        <td class="px-4 py-2"><input type="number" class="border p-1 w-full"></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Update consumption calculation
+        function updateConsumption(day) {
+            const inputs = document.querySelectorAll('#readingsTableBody input');
+            const currentValue = parseFloat(inputs[day - 1].value) || 0;
+            const previousValue = day > 1 ? (parseFloat(inputs[day - 2].value) || 0) : 0;
+            const consumption = currentValue - previousValue;
+            document.getElementById(`consumption-${day}`).textContent = consumption.toFixed(2);
+            
+            // Auto save to local storage
+            saveReadings();
+        }
+
+        // Save readings to local storage
+        function saveReadings() {
+            const readingsData = {};
+            document.querySelectorAll('#readingsTableBody input').forEach((input, index) => {
+                readingsData[index] = input.value;
+            });
+            localStorage.setItem(`readings-${selectedMeterType}-${selectedYear}-${selectedMonth}`, 
+                               JSON.stringify(readingsData));
+        }
+
+        // Load readings from local storage
+        function loadReadings() {
+            const savedReadings = localStorage.getItem(
+                `readings-${selectedMeterType}-${selectedYear}-${selectedMonth}`
+            );
+            if (savedReadings) {
+                const data = JSON.parse(savedReadings);
+                const inputs = document.querySelectorAll('#readingsTableBody input');
+                Object.entries(data).forEach(([index, value]) => {
+                    inputs[index].value = value;
+                    updateConsumption(parseInt(index) + 1);
+                });
+            }
+        }
+
+        // Show readings
+        function showReadings() {
+            navigateTo('readingsTable');
+            initializeReadingsTable();
+            loadReadings();
+        }
+
+        // Show chart
+        function showChart() {
+            navigateTo('chartView');
+            const ctx = document.getElementById('consumptionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({length: 31}, (_, i) => i + 1),
+                    datasets: [{
+                        label: 'Daily Consumption (M³)',
+                        data: Array.from({length: 31}, () => Math.random() * 100),
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Show report
+        function showReport() {
+            navigateTo('monthlyReport');
+            // Implementation for monthly report generation
+        }
+
+        // Initialize application
+        window.onload = function() {
+            initializeYearDropdown();
+            initializeMonths();
+            navigateTo('homePage');
+        };
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
